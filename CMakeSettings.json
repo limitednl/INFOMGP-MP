@@ -37,9 +37,5 @@
       "variables": []
     }
   ],
-  "environments": [
-    {
-      "ProjectDir": "${projectDir}"
-    }
-  ]
+  "environments": [ { "ProjectDir": "${projectDir}" } ]
 }
