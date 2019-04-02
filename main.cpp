@@ -16,10 +16,8 @@ Scene scene;
 bool relaunch = true;
 bool fScreen = false;
 
-bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier)
-{
-	if (key == ' ')
-	{
+bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier) {
+	if (key == ' ') {
 		viewer.core.is_animating = !viewer.core.is_animating;
 		if (viewer.core.is_animating)
 			cout << "Simulation running" << endl;
@@ -28,16 +26,14 @@ bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier
 		return true;
 	}
 
-	if (key == 'S')
-	{
+	if (key == 'S') {
 		if (!viewer.core.is_animating) {
 			//scene.updateScene();
 			return true;
 		}
 	}
 
-	if (key == 'V')
-	{
+	if (key == 'V') {
 		glfwSetWindowShouldClose(viewer.window, GLFW_TRUE);
 		fScreen = !fScreen;
 		relaunch = true;
@@ -46,8 +42,7 @@ bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier
 	return false;
 }
 
-bool pre_draw(igl::opengl::glfw::Viewer& viewer)
-{
+bool pre_draw(igl::opengl::glfw::Viewer& viewer) {
 	using namespace Eigen;
 	using namespace std;
 
@@ -58,8 +53,7 @@ bool pre_draw(igl::opengl::glfw::Viewer& viewer)
 	return false;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	using namespace Eigen;
 	using namespace std;
 
@@ -80,8 +74,7 @@ int main(int argc, char* argv[])
 	viewer.plugins.push_back(&menu);
 	viewer.callback_key_down = &key_down;
 
-	while (relaunch)
-	{
+	while (relaunch) {
 		//handle fullscreen
 		relaunch = false;
 		viewer.core.viewport[2] = 1200;
