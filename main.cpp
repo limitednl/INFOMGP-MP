@@ -4,6 +4,10 @@
 #include <imgui/imgui.h>
 #include <iostream>
 #include "scene.h"
+#include <Eigen/Core>
+
+using namespace std;
+using namespace Eigen;
 
 igl::opengl::glfw::Viewer viewer;
 

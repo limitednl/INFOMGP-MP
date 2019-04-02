@@ -2,9 +2,8 @@
 
 namespace SPH {
 	ParticleCollection::ParticleCollection(
-		const size_t size,
-		const ParticleData* data
-	) : size(size), mass(size);
+		const size_t size, const ParticleData* data
+	) : size(size), mass(size),
 		positionX(size), positionY(size), positionZ(size),
 		velocityX(size), velocityY(size), velocityZ(size) {
 		for (size_t i = 0; i < size; ++i) {

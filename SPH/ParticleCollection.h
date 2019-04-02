@@ -6,7 +6,7 @@ namespace SPH {
 	class ParticleCollection {
 		public:
 			// The size of the collection.
-			const size_t size;
+			size_t size;
 
 			// Mass data.
 			Eigen::VectorXd mass;
