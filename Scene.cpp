@@ -4,20 +4,24 @@
 #include <iostream>
 #include <Eigen/Core>
 
-Scene::Scene() : particles(0, NULL), particleRadius(0.1) {}
+Scene::Scene(): particleRadius(0.1), particles(NULL), fluidSimulation(NULL) {}
+Scene::~Scene() {
+	if (NULL != this->fluidSimulation) { delete this->fluidSimulation; }
+	if (NULL != this->particles) { delete this->particles; }
+}
 
 size_t Scene::getMeshCount() { 
-	return this->particles.size; 
+	return this->particles->size; 
 }
 
 void Scene::draw(igl::opengl::glfw::Viewer& viewer) {
 	Eigen::RowVector3d color; color << 0.1, 0.1, 0.8; //blue-ish?
-	for (size_t i = 0; i < this->particles.size; ++i) {
+	for (size_t i = 0; i < this->particles->size; ++i) {
 		Eigen::Matrix4d transform; transform << 
-			this->particleRadius,                  0.0,                  0.0, this->particles.positionX[i],
-			                 0.0, this->particleRadius,                  0.0, this->particles.positionY[i],
-			                 0.0,                  0.0, this->particleRadius, this->particles.positionZ[i],
-			                 0.0,                  0.0,                  0.0,                          1.0;
+			this->particleRadius,                  0.0,                  0.0, this->particles->positionX[i],
+			                 0.0, this->particleRadius,                  0.0, this->particles->positionY[i],
+			                 0.0,                  0.0, this->particleRadius, this->particles->positionZ[i],
+			                 0.0,                  0.0,                  0.0,                           1.0;
 
 		Eigen::MatrixXd transformedVertices = (transform * this->particleVertices.transpose()).transpose();
 		Eigen::MatrixXd transformedMesh = transformedVertices.block(0, 0, transformedVertices.rows(), 3);
@@ -64,7 +68,7 @@ void Scene::draw(igl::opengl::glfw::Viewer& viewer) {
 
 void Scene::updateScene(double timeStep) {
 	// Update the fluid simulation.
-	this->fluidSimulation.update(timeStep, this->particles);
+	this->fluidSimulation->update(timeStep);
 }
 
 bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileName) {
@@ -86,10 +90,11 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 		data[i] = { 0.0997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
 	}
 
-	this->particles = FluidSim::ParticleCollection(count, data);
+	this->particles = new FluidSim::ParticleCollection(count, data);
+	this->fluidSimulation = new FluidSim::FluidSimulation(*this->particles);
 
 	// Generate meshes.
-	const int sphereResolution = 10;
+	const int sphereResolution = 4;
 	const int spherePoints = (sphereResolution + 1) * sphereResolution;
 	this->particleVertices.resize(spherePoints, 4);
 	for (size_t m = 0; m <= sphereResolution; ++m) {

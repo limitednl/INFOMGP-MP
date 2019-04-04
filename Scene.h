@@ -12,8 +12,8 @@ class Scene{
 		Eigen::MatrixXd particleVertices;
 		Eigen::MatrixXi particleFaces;
 
-		FluidSim::FluidSimulation fluidSimulation;
-		FluidSim::ParticleCollection particles;
+		FluidSim::FluidSimulation* fluidSimulation;
+		FluidSim::ParticleCollection* particles;
 
 	public:
 		size_t getMeshCount();
@@ -26,4 +26,5 @@ class Scene{
 		bool loadScene(const std::string dataFolder, const std::string sceneFileName);
 		
 		Scene();
+		~Scene();
 };
