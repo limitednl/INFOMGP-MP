@@ -1,6 +1,6 @@
 #include "./ParticleCollection.h"
 
-namespace SPH {
+namespace FluidSim {
 	ParticleCollection::ParticleCollection(
 		const size_t size, const ParticleData* data
 	) : size(size), mass(size),

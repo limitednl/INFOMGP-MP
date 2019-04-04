@@ -1,7 +1,7 @@
 #pragma once
 #include <Eigen/Core>
 
-namespace SPH {
+namespace FluidSim {
 	struct ParticleData {
 		double mass;
 		Eigen::Vector3d position;

@@ -2,7 +2,7 @@
 #include <Eigen/Core>
 #include "./ParticleData.h"
 
-namespace SPH {
+namespace FluidSim {
 	class ParticleCollection {
 		public:
 			// The size of the collection.

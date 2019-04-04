@@ -12,6 +12,7 @@ using namespace Eigen;
 igl::opengl::glfw::Viewer viewer;
 
 float currTime = 0;
+float timeStep = 0.02;
 
 //initial values
 
@@ -20,10 +21,8 @@ Scene scene;
 bool relaunch = true;
 bool fScreen = false;
 
-bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier)
-{
-	if (key == ' ')
-	{
+bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier) {
+	if (key == ' ') {
 		viewer.core.is_animating = !viewer.core.is_animating;
 		if (viewer.core.is_animating)
 			cout << "Simulation running" << endl;
@@ -32,16 +31,17 @@ bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier
 		return true;
 	}
 
-	if (key == 'S')
-	{
+	if (key == 'S') {
 		if (!viewer.core.is_animating) {
-			//scene.updateScene();
+			scene.updateScene(timeStep);
+			currTime += timeStep;
+			scene.draw(viewer);
+			std::cout << "currTime: " << currTime << std::endl;
 			return true;
 		}
 	}
 
-	if (key == 'V')
-	{
+	if (key == 'V') {
 		glfwSetWindowShouldClose(viewer.window, GLFW_TRUE);
 		fScreen = !fScreen;
 		relaunch = true;
@@ -50,64 +50,20 @@ bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier
 	return false;
 }
 
-void GetSphereMesh(double radius, MatrixXd& vertices, MatrixXi& faces) {
-	vertices.resize(8, 3);
-	vertices <<
-		-radius, radius, -radius,
-		-radius, radius, radius,
-		radius, radius, radius,
-		radius, radius, -radius,
-		-radius, -radius, -radius,
-		-radius, -radius, radius,
-		radius, -radius, radius,
-		radius, -radius, -radius;
-
-	faces.resize(12, 3);
-	faces <<
-		0, 1, 2,
-		2, 3, 0,
-		6, 5, 4,
-		4, 7, 6,
-		1, 0, 5,
-		0, 4, 5,
-		2, 1, 6,
-		1, 5, 6,
-		3, 2, 7,
-		2, 6, 7,
-		0, 3, 4,
-		3, 7, 4;
-}
-
-bool pre_draw(igl::opengl::glfw::Viewer& viewer)
-{
+bool pre_draw(igl::opengl::glfw::Viewer& viewer) {
 	using namespace Eigen;
 	using namespace std;
 
 	if (viewer.core.is_animating) {
-		RowVector3d color; color << 0.8, 0.1, 0.1; //red-ish?
-
-		//todo: set;
-		MatrixXd vertices;
-		MatrixXi faces;
-
-		//x,y,z,radius
-		Vector4d particle; particle << 0, 0, 0, 20;
-
- 		GetSphereMesh(1, vertices, faces);
-
-		viewer.data_list[0].clear();
-		viewer.data_list[0].set_mesh(vertices, faces);
-		viewer.data_list[0].set_face_based(true);
-		viewer.data_list[0].show_lines = false;
-		viewer.data_list[0].set_colors(color);
-		viewer.core.align_camera_center(vertices);
+		scene.updateScene(timeStep);
+		currTime += timeStep;
+		scene.draw(viewer);
 	}
 
 	return false;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	using namespace Eigen;
 	using namespace std;
 
@@ -122,6 +78,11 @@ int main(int argc, char* argv[])
 	1. load world
 	2. add default meshes
 	*/
+	scene.loadScene(std::string(argv[1]), std::string(argv[2]));
+	scene.updateScene(timeStep);
+
+	for (size_t i = 0; i < scene.getMeshCount(); ++i) { viewer.append_mesh(); }
+	scene.draw(viewer);
 
 	//add a menu
 	igl::opengl::glfw::imgui::ImGuiMenu menu;
@@ -129,8 +90,7 @@ int main(int argc, char* argv[])
 	viewer.callback_key_down = &key_down;
 	viewer.callback_pre_draw = &pre_draw;
 
-	while (relaunch)
-	{
+	while (relaunch) {
 		//handle fullscreen
 		relaunch = false;
 		viewer.core.viewport[2] = 1200;

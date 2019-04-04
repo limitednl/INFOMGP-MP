@@ -2,7 +2,7 @@
 #include <Eigen/Core>
 #include "./ParticleCollection.h"
 
-namespace SPH {
+namespace FluidSim {
 	class FluidSimulation {
 		public:
 			double environmentalPressure;
@@ -12,10 +12,11 @@ namespace SPH {
 
 		public:
 			void update(const double deltaTime, ParticleCollection& particles);
-			FluidSimulation(): environmentalPressure(0.0), gasConstant(0.0), resolution(0.0), gravity(0.0, 9.81, 0.0) {}
+			FluidSimulation();
 
 		private:
-			double smoothingPressure(const double distance, const double radius);
-			Eigen::Vector3d gradientSmoothingPressure(const double distance, const double radius);
+			double smoothingPressure(const Eigen::Vector3d& distance, const double radius);
+			Eigen::Vector3d gradientSmoothingPressure(const Eigen::Vector3d& distance, const double radius);
+			double laplacianSmoothingViscosity(const Eigen::Vector3d& distance, const double radius);
 	};
 }
