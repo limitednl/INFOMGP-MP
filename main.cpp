@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Eigen;
 
-igl::opengl::glfw::Viewer viewer;
+igl::opengl::glfw::Viewer globalViewer;
 
 float currTime = 0;
 float timeStep = 0.02;
@@ -67,6 +67,28 @@ bool pre_draw(igl::opengl::glfw::Viewer& viewer) {
 	return false;
 }
 
+class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
+{
+
+	virtual void draw_viewer_menu() override
+	{
+		// Draw parent menu
+		ImGuiMenu::draw_viewer_menu();
+
+		// Add new group
+		if (ImGui::CollapsingHeader("Algorithm Options", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::InputDouble("Environmental Pressure", &scene.fluidSimulation->environmentalPressure, 0, 0);
+			ImGui::InputDouble("Gas Constant", &scene.fluidSimulation->gasConstant, 0, 0);
+
+
+			if (ImGui::InputFloat("Time Step", &timeStep)) {
+				globalViewer.core.animation_max_fps = (((int)1.0 / timeStep));
+			}
+		}
+	}
+};
+
 int main(int argc, char* argv[]) {
 	using namespace Eigen;
 	using namespace std;
@@ -85,21 +107,24 @@ int main(int argc, char* argv[]) {
 	scene.loadScene(std::string(argv[1]), std::string(argv[2]));
 	scene.updateScene(timeStep);
 
-	for (size_t i = 0; i < scene.getMeshCount(); ++i) { viewer.append_mesh(); }
-	scene.draw(viewer);
+	//for (size_t i = 0; i < scene.getMeshCount(); ++i) { globalViewer.append_mesh(); }
+	scene.draw(globalViewer);
 
 	//add a menu
 	igl::opengl::glfw::imgui::ImGuiMenu menu;
-	viewer.plugins.push_back(&menu);
-	viewer.callback_key_down = &key_down;
-	viewer.callback_pre_draw = &pre_draw;
+	globalViewer.plugins.push_back(&menu);
+	globalViewer.callback_key_down = &key_down;
+	globalViewer.callback_pre_draw = &pre_draw;
+
+	CustomMenu customMenu;
+	globalViewer.plugins.push_back(&customMenu);
 
 	while (relaunch) {
 		//handle fullscreen
 		relaunch = false;
-		viewer.core.viewport[2] = 1200;
-		viewer.core.viewport[3] = 800;
-		viewer.launch(!fScreen, fScreen);
+		globalViewer.core.viewport[2] = 1200;
+		globalViewer.core.viewport[3] = 800;
+		globalViewer.launch(!fScreen, fScreen);
 	}
 }
 

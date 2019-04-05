@@ -12,6 +12,7 @@ class Scene{
 		Eigen::MatrixXd particleVertices;
 		Eigen::MatrixXi particleFaces;
 
+	public:
 		FluidSim::FluidSimulation* fluidSimulation;
 		FluidSim::ParticleCollection* particles;
 

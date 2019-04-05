@@ -83,7 +83,7 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 
 	const size_t count = 400;
 	const double particleSize = 2 * this->particleRadius;
-	const double areaSize = 2.0;
+	const double areaSize = 1.6;
 
 	double ppd = areaSize / particleSize;
 	FluidSim::ParticleData data[count];
@@ -92,7 +92,7 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 		double z = -0.5 * areaSize + particleSize * floor((i % (int) (ppd * ppd)) / ppd);
 		double x = -0.5 * areaSize + particleSize * (i % (int) ppd);
 
-		data[i] = { 0.0997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
+		data[i] = { 0.997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
 	}
 
 	this->particles = new FluidSim::ParticleCollection(count, data);
