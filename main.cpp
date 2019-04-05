@@ -35,6 +35,8 @@ bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier
 		if (!viewer.core.is_animating) {
 			scene.updateScene(timeStep);
 			currTime += timeStep;
+
+			viewer.data().clear();
 			scene.draw(viewer);
 			std::cout << "currTime: " << currTime << std::endl;
 			return true;
@@ -57,6 +59,8 @@ bool pre_draw(igl::opengl::glfw::Viewer& viewer) {
 	if (viewer.core.is_animating) {
 		scene.updateScene(timeStep);
 		currTime += timeStep;
+
+		viewer.data().clear();
 		scene.draw(viewer);
 	}
 

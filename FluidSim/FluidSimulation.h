@@ -5,6 +5,10 @@
 namespace FluidSim {
 	class FluidSimulation {
 		private:
+			uint64_t totalTicks;
+			double totalAverage;
+			double slidingAverage;
+
 			ParticleCollection& particles;
 			Eigen::MatrixXd distanceX;
 			Eigen::MatrixXd distanceY;
