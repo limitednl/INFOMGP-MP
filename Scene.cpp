@@ -81,7 +81,7 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 	std::mt19937 e2(rd());
 	std::uniform_real_distribution<> dist(-0.5, 0.5);
 
-	const size_t count = 400;
+	const size_t count = 800;
 	const double particleSize = 2 * this->particleRadius;
 	const double areaSize = 1.6;
 

@@ -11,7 +11,7 @@ namespace FluidSim {
 	) : totalTicks(0), totalAverage(0.0), slidingAverage(0.0),
 		environmentalPressure(0.0), gasConstant(20.0), resolution(1.0), gravity(0.0, -9.81, 0.0),
 		particles(particles), density(particles.size), pressure(particles.size),
-	    distanceX(particles.size, particles.size), distanceY(particles.size, particles.size), distanceZ(particles.size, particles.size) {
+		distanceX(particles.size, particles.size), distanceY(particles.size, particles.size), distanceZ(particles.size, particles.size) {
 	}
 
 	void FluidSimulation::update(const double deltaTime) {
@@ -52,6 +52,7 @@ namespace FluidSim {
 			Eigen::Vector3d viscosityForce(0.0, 0.0, 0.0);
 			Eigen::Vector3d pressureForce(0.0, 0.0, 0.0);
 			Eigen::Vector3d externalForce(0.0, 0.0, 0.0);
+			Eigen::Vector3d surfaceForce(0.0, 0.0, 0.0);
 
 			// Calculate viscosity force for particle i.
 			//Eigen::Vector3d velocityI(this->particles.velocityX[i], this->particles.velocityY[i], this->particles.velocityZ[i]);
@@ -75,11 +76,33 @@ namespace FluidSim {
 				pressureForce -= partialPressureForce;
 			}
 
+			double tensionCoefficient = 1.1;
+			double lengthTreshold = 1;
+
+			double cfLaplacian = 0;
+			Eigen::Vector3d n = Eigen::Vector3d::Zero();
+
+			//Calculate the surface tension
+			for (size_t j = 0; j < particles.size; j++)
+			{
+				Eigen::Vector3d distance(this->distanceX(i, j), this->distanceY(i, j), this->distanceZ(i, j));
+
+				auto weight = particles.mass[j] * 1 / density[j];
+
+				//colorfield gradient
+				n += weight * gradientSmoothingPressure(distance, resolution);
+				cfLaplacian += weight * laplacianSmoothingPressure(distance, resolution);
+			}
+
+			//only apply if the norm is big enough
+			if (n.squaredNorm() > lengthTreshold * lengthTreshold)
+				surfaceForce = -tensionCoefficient * cfLaplacian * n.normalized();
+
 			// Calculate external forces.
 			externalForce += this->gravity * this->density[i];
 
 			// Integrate acceleration for particle.
-			Eigen::Vector3d acceleration = (viscosityForce + pressureForce + externalForce) / this->density[i];
+			Eigen::Vector3d acceleration = (viscosityForce + pressureForce + externalForce + surfaceForce) / this->density[i];
 			this->particles.velocityX[i] += deltaTime * acceleration[0];
 			this->particles.velocityY[i] += deltaTime * acceleration[1];
 			this->particles.velocityZ[i] += deltaTime * acceleration[2];
@@ -93,9 +116,9 @@ namespace FluidSim {
 		// TODO: Makeshift boundary condition.
 		double dampeningFactory = 1.0;
 		for (size_t i = 0; i < this->particles.size; ++i) {
-			if (abs(particles.positionX[i]) > 1.0) { 
+			if (abs(particles.positionX[i]) > 1.0) {
 				particles.positionX[i] = std::min(1.0, std::max(-1.0, particles.positionX[i]));
-				particles.velocityX[i] = -dampeningFactory * particles.velocityX[i]; 
+				particles.velocityX[i] = -dampeningFactory * particles.velocityX[i];
 			}
 
 			if (abs(particles.positionY[i]) > 1.0) {
@@ -122,21 +145,32 @@ namespace FluidSim {
 		printf_s("Fluid update took %.5fs. (%.5f | %.5f for %zu ticks)\n", duration, this->slidingAverage, this->totalAverage, this->totalTicks);
 	}
 
-	double FluidSimulation::smoothingPressure(const Eigen::Vector3d& distance, const double radius) {
+	double FluidSimulation::smoothingPressure(const Eigen::Vector3d & distance, const double radius) {
 		if (distance.squaredNorm() > radius * radius) { return 0; }
 		double distanceComponent = pow(radius * radius - distance.squaredNorm(), 3);
 		return 315 / (64 * 3.14 * pow(radius, 9)) * distanceComponent;
 	}
 
-	Eigen::Vector3d FluidSimulation::gradientSmoothingPressure(const Eigen::Vector3d& distance, const double radius) {
+	Eigen::Vector3d FluidSimulation::gradientSmoothingPressure(const Eigen::Vector3d & distance, const double radius) {
 		if (distance.squaredNorm() > radius * radius) { return Eigen::Vector3d::Zero(); }
 		Eigen::Vector3d distanceComponent = distance * pow(radius * radius - distance.squaredNorm(), 2);
 		return 945 / (32 * 3.14 * pow(radius, 9)) * distanceComponent;
 	}
 
-	double FluidSimulation::laplacianSmoothingViscosity(const Eigen::Vector3d& distance, const double radius) {
+	double FluidSimulation::laplacianSmoothingPressure(const Eigen::Vector3d & distance, const double radius) {
+		if (distance.squaredNorm() > radius * radius) { return 0.0; }
+		double distanceComponent
+			= (radius * radius - distance.squaredNorm())
+			* (3 * radius * radius - 7 * distance.squaredNorm());
+
+		return 945 / (32 * 3.14 * pow(radius, 9)) * distanceComponent;
+	}
+
+	double FluidSimulation::laplacianSmoothingViscosity(const Eigen::Vector3d & distance, const double radius) {
 		if (distance.squaredNorm() > radius * radius) { return 0.0; }
 		double distanceComponent = radius - distance.norm();
 		return 45 / (3.14 * pow(radius, 6)) * distanceComponent;
 	}
+
+
 }
