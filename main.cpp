@@ -70,8 +70,7 @@ bool pre_draw(igl::opengl::glfw::Viewer& viewer) {
 class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 {
 
-	virtual void draw_viewer_menu() override
-	{
+	virtual void draw_viewer_menu() override {
 		// Draw parent menu
 		ImGuiMenu::draw_viewer_menu();
 
@@ -111,13 +110,11 @@ int main(int argc, char* argv[]) {
 	scene.draw(globalViewer);
 
 	//add a menu
-	igl::opengl::glfw::imgui::ImGuiMenu menu;
-	globalViewer.plugins.push_back(&menu);
 	globalViewer.callback_key_down = &key_down;
 	globalViewer.callback_pre_draw = &pre_draw;
 
-	CustomMenu customMenu;
-	globalViewer.plugins.push_back(&customMenu);
+	CustomMenu menu;
+	globalViewer.plugins.push_back(&menu);
 
 	while (relaunch) {
 		//handle fullscreen
