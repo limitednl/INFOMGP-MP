@@ -16,11 +16,12 @@ namespace FluidSim {
 		Eigen::VectorXd density;
 		Eigen::VectorXd pressure;
 
-	public:
-		double environmentalPressure;
-		double gasConstant;
-		double resolution;
-		Eigen::Vector3d gravity; // Gravity as acceleration.
+		public:
+			double environmentalPressure;
+			double gasConstant;
+			double resolution;
+			double viscosity;
+			Eigen::Vector3d gravity; // Gravity as acceleration.
 
 	public:
 		void update(const double deltaTime);
