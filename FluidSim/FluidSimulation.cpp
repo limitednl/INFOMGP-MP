@@ -10,6 +10,7 @@ namespace FluidSim {
 		ParticleCollection& particles
 	) : totalTicks(0), totalAverage(0.0), slidingAverage(0.0),
 		environmentalPressure(0.0), gasConstant(20.0), resolution(1.0), viscosity(0.09), gravity(0.0, -9.81, 0.0),
+		lengthTreshold(1), tensionCoefficient(0.1),
 		particles(particles), density(particles.size), pressure(particles.size),
 		distanceX(particles.size, particles.size), distanceY(particles.size, particles.size), distanceZ(particles.size, particles.size) {
 	}
@@ -60,7 +61,7 @@ namespace FluidSim {
 
 				Eigen::Vector3d velocityJ(this->particles.velocityX[j], this->particles.velocityY[j], this->particles.velocityZ[j]);
 				viscosityForce += this->particles.mass[j] * (velocityJ - velocityI) / this->density[j]
-					            * this->laplacianSmoothingViscosity(distance, this->resolution);
+					* this->laplacianSmoothingViscosity(distance, this->resolution);
 			}
 			viscosityForce *= this->viscosity;
 
@@ -73,8 +74,6 @@ namespace FluidSim {
 				pressureForce -= partialPressureForce;
 			}
 
-			double tensionCoefficient = 1.1;
-			double lengthTreshold = 1;
 
 			double cfLaplacian = 0;
 			Eigen::Vector3d n = Eigen::Vector3d::Zero();
@@ -111,11 +110,11 @@ namespace FluidSim {
 		this->particles.positionZ += deltaTime * particles.velocityZ;
 
 		// TODO: Makeshift boundary condition.
-		double dampeningFactory = 1.0;
+		double dampeningFactory = 0.1;
 		for (size_t i = 0; i < this->particles.size; ++i) {
-			if (abs(particles.positionX[i]) > 5.0) { 
+			if (abs(particles.positionX[i]) > 5.0) {
 				particles.positionX[i] = std::min(5.0, std::max(-5.0, particles.positionX[i]));
-				particles.velocityX[i] = -dampeningFactory * particles.velocityX[i]; 
+				particles.velocityX[i] = -dampeningFactory * particles.velocityX[i];
 			}
 
 			if (abs(particles.positionY[i]) > 5.0) {
