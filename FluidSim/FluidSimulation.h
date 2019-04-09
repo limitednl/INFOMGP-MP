@@ -17,10 +17,15 @@ namespace FluidSim {
 			Eigen::VectorXd pressure;
 
 		public:
-			double environmentalPressure;
-			double gasConstant;
-			double resolution;
-			double viscosity;
+			bool useViscosity = true;
+			bool usePressure = true;
+			bool useGravity = true;
+
+			double restitutionCoefficient = 0.1;
+			double environmentalPressure = 0.0;
+			double gasConstant = 20.0;
+			double resolution = 1.0;
+			double viscosity = 3;
 			Eigen::Vector3d gravity; // Gravity as acceleration.
 
 		public:

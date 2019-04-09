@@ -75,15 +75,24 @@ class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 		ImGuiMenu::draw_viewer_menu();
 
 		// Add new group
-		if (ImGui::CollapsingHeader("Algorithm Options", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			ImGui::InputDouble("Environmental Pressure", &scene.fluidSimulation->environmentalPressure, 0, 0);
-			ImGui::InputDouble("Gas Constant", &scene.fluidSimulation->gasConstant, 0, 0);
+		if (ImGui::CollapsingHeader("Simulation Options", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ImGui::InputDouble("COR", &scene.fluidSimulation->restitutionCoefficient, 0, 0);
+			ImGui::InputDouble("Resolution", &scene.fluidSimulation->resolution, 0, 0);
+
+			ImGui::Checkbox("Use Gravity", &scene.fluidSimulation->useGravity);
+			ImGui::Checkbox("Use Viscosity", &scene.fluidSimulation->useViscosity);
+			ImGui::Checkbox("Use Pressure", &scene.fluidSimulation->usePressure);
 
 
 			if (ImGui::InputFloat("Time Step", &timeStep)) {
 				globalViewer.core.animation_max_fps = (((int)1.0 / timeStep));
 			}
+		}
+
+		if (ImGui::CollapsingHeader("Fluid Options", ImGuiTreeNodeFlags_DefaultOpen)) {
+			ImGui::InputDouble("Environmental Pressure", &scene.fluidSimulation->environmentalPressure, 0, 0);
+			ImGui::InputDouble("Gas Constant", &scene.fluidSimulation->gasConstant, 0, 0);
+			ImGui::InputDouble("Viscosity", &scene.fluidSimulation->viscosity, 0, 0);
 		}
 	}
 };
@@ -103,10 +112,10 @@ int main(int argc, char* argv[]) {
 	1. load world
 	2. add default meshes
 	*/
-	scene.loadScene(std::string(argv[1]), std::string(argv[2]));
+	scene.loadScene(std::string(argv[1]), std::string(argv[2]), globalViewer);
 	scene.updateScene(timeStep);
 
-	//for (size_t i = 0; i < scene.getMeshCount(); ++i) { globalViewer.append_mesh(); }
+	for (size_t i = 0; i < scene.particles->size; ++i) { globalViewer.append_mesh(); }
 	scene.draw(globalViewer);
 
 	//add a menu

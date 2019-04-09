@@ -8,8 +8,7 @@
 namespace FluidSim {
 	FluidSimulation::FluidSimulation(
 		ParticleCollection& particles
-	) : totalTicks(0), totalAverage(0.0), slidingAverage(0.0),
-		environmentalPressure(0.0), gasConstant(20.0), resolution(1.0), viscosity(0.09), gravity(0.0, -9.81, 0.0),
+	) : totalTicks(0), totalAverage(0.0), slidingAverage(0.0), gravity(0.0, -9.81, 0.0),
 		particles(particles), density(particles.size), pressure(particles.size),
 	    distanceX(particles.size, particles.size), distanceY(particles.size, particles.size), distanceZ(particles.size, particles.size) {
 	}
@@ -73,10 +72,16 @@ namespace FluidSim {
 			}
 
 			// Calculate external forces.
-			externalForce += this->gravity * this->density[i];
+			if (this->useGravity) {
+				externalForce += this->gravity * this->density[i];
+			}
 
 			// Integrate acceleration for particle.
-			Eigen::Vector3d acceleration = (viscosityForce + pressureForce + externalForce) / this->density[i];
+			Eigen::Vector3d acceleration = externalForce;
+			if (this->useViscosity) { acceleration += viscosityForce; }
+			if (this->usePressure) { acceleration += pressureForce; }
+			acceleration /= this->density[i];
+
 			this->particles.velocityX[i] += deltaTime * acceleration[0];
 			this->particles.velocityY[i] += deltaTime * acceleration[1];
 			this->particles.velocityZ[i] += deltaTime * acceleration[2];
@@ -88,21 +93,20 @@ namespace FluidSim {
 		this->particles.positionZ += deltaTime * particles.velocityZ;
 
 		// TODO: Makeshift boundary condition.
-		double dampeningFactory = 1.0;
 		for (size_t i = 0; i < this->particles.size; ++i) {
 			if (abs(particles.positionX[i]) > 5.0) { 
 				particles.positionX[i] = std::min(5.0, std::max(-5.0, particles.positionX[i]));
-				particles.velocityX[i] = -dampeningFactory * particles.velocityX[i]; 
+				particles.velocityX[i] = -this->restitutionCoefficient * particles.velocityX[i];
 			}
 
 			if (abs(particles.positionY[i]) > 5.0) {
 				particles.positionY[i] = std::min(5.0, std::max(-5.0, particles.positionY[i]));
-				particles.velocityY[i] = -dampeningFactory * particles.velocityY[i];
+				particles.velocityY[i] = -this->restitutionCoefficient * particles.velocityY[i];
 			}
 
 			if (abs(particles.positionZ[i]) > 5.0) {
 				particles.positionZ[i] = std::min(5.0, std::max(-5.0, particles.positionZ[i]));
-				particles.velocityZ[i] = -dampeningFactory * particles.velocityZ[i];
+				particles.velocityZ[i] = -this->restitutionCoefficient * particles.velocityZ[i];
 			}
 		}
 
