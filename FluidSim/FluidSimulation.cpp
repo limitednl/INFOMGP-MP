@@ -97,6 +97,10 @@ namespace FluidSim {
 				externalForce += this->gravity * this->density[i];
 			}
 
+			if (this->useSurfaceTension) {
+				externalForce += surfaceForce;
+			}
+
 			// Integrate acceleration for particle.
 			Eigen::Vector3d acceleration = externalForce;
 			if (this->useViscosity) { acceleration += viscosityForce; }

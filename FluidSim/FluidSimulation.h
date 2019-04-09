@@ -20,6 +20,7 @@ namespace FluidSim {
 			bool useViscosity = true;
 			bool usePressure = true;
 			bool useGravity = true;
+			bool useSurfaceTension = true;
 
 			double restitutionCoefficient = 0.1;
 			double environmentalPressure = 0.0;

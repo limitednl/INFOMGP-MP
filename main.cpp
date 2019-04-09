@@ -82,6 +82,7 @@ class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 			ImGui::Checkbox("Use Gravity", &scene.fluidSimulation->useGravity);
 			ImGui::Checkbox("Use Viscosity", &scene.fluidSimulation->useViscosity);
 			ImGui::Checkbox("Use Pressure", &scene.fluidSimulation->usePressure);
+			ImGui::Checkbox("Use Surface Tension", &scene.fluidSimulation->useSurfaceTension);
 
 
 			if (ImGui::InputFloat("Time Step", &timeStep)) {
