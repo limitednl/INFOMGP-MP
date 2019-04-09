@@ -4,17 +4,20 @@
 
 namespace FluidSim {
 	class FluidSimulation {
-	private:
-		uint64_t totalTicks;
-		double totalAverage;
-		double slidingAverage;
+		constexpr static double RESOLUTION = 1.0;
 
-		ParticleCollection& particles;
-		Eigen::MatrixXd distanceX;
-		Eigen::MatrixXd distanceY;
-		Eigen::MatrixXd distanceZ;
-		Eigen::VectorXd density;
-		Eigen::VectorXd pressure;
+		private:
+			uint64_t totalTicks;
+			double totalAverage;
+			double slidingAverage;
+
+			ParticleCollection& particles;
+			Eigen::MatrixXd distanceX;
+			Eigen::MatrixXd distanceY;
+			Eigen::MatrixXd distanceZ;
+			Eigen::VectorXd density;
+			Eigen::VectorXd pressure;
+			std::vector<std::vector<size_t>> particleGrid;
 
 		public:
 			bool useViscosity = true;
@@ -22,24 +25,28 @@ namespace FluidSim {
 			bool useGravity = true;
 			bool useSurfaceTension = true;
 
-			double restitutionCoefficient = 0.1;
-			double environmentalPressure = 0.0;
+			double wallPressure = 3.0;
+			double simulationSize = 5.0;
+			double environmentalPressure = 2.0;
+
+			double restitutionCoefficient = 0.6;
 			double gasConstant = 20.0;
-			double resolution = 1.0;
-			double viscosity = 3;
+			double viscosity = 0.5;
 			double tensionCoefficient = 0.1;
 			double lengthTreshold = 1.0;
 			Eigen::Vector3d gravity; // Gravity as acceleration.
 
-	public:
-		void update(const double deltaTime);
-		FluidSimulation(ParticleCollection& particles);
+		public:
+			void update(const double deltaTime);
+			FluidSimulation(ParticleCollection& particles);
 
-	private:
-		double smoothingPressure(const Eigen::Vector3d& distance, const double radius);
-		Eigen::Vector3d gradientSmoothingPressure(const Eigen::Vector3d& distance, const double radius);
-		double laplacianSmoothingPressure(const Eigen::Vector3d& distance, const double radius);
+		private:
+			void rebuildParticleGrid();
+			std::vector<size_t> getNeighborhoodIndices(size_t index);
 
-		double laplacianSmoothingViscosity(const Eigen::Vector3d& distance, const double radius);
+			double smoothingPressure(const Eigen::Vector3d& distance);
+			Eigen::Vector3d gradientSmoothingPressure(const Eigen::Vector3d& distance);
+			double laplacianSmoothingPressure(const Eigen::Vector3d& distance);
+			double laplacianSmoothingViscosity(const Eigen::Vector3d& distance);
 	};
 }

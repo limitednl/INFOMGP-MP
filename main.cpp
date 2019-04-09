@@ -76,13 +76,16 @@ class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 
 		// Add new group
 		if (ImGui::CollapsingHeader("Simulation Options", ImGuiTreeNodeFlags_DefaultOpen)) {
-			ImGui::InputDouble("COR", &scene.fluidSimulation->restitutionCoefficient, 0, 0);
-			ImGui::InputDouble("Resolution", &scene.fluidSimulation->resolution, 0, 0);
-
 			ImGui::Checkbox("Use Gravity", &scene.fluidSimulation->useGravity);
 			ImGui::Checkbox("Use Viscosity", &scene.fluidSimulation->useViscosity);
 			ImGui::Checkbox("Use Pressure", &scene.fluidSimulation->usePressure);
 			ImGui::Checkbox("Use Surface Tension", &scene.fluidSimulation->useSurfaceTension);
+
+			ImGui::InputDouble("COR", &scene.fluidSimulation->restitutionCoefficient, 0, 0);
+			ImGui::InputDouble("Wall Pressure", &scene.fluidSimulation->wallPressure, 0, 0);
+			ImGui::InputDouble("Gravity X", &scene.fluidSimulation->gravity[0], 0, 0);
+			ImGui::InputDouble("Gravity Y", &scene.fluidSimulation->gravity[1], 0, 0);
+			ImGui::InputDouble("Gravity Z", &scene.fluidSimulation->gravity[2], 0, 0);
 
 
 			if (ImGui::InputFloat("Time Step", &timeStep)) {
@@ -115,8 +118,6 @@ int main(int argc, char* argv[]) {
 	*/
 	scene.loadScene(std::string(argv[1]), std::string(argv[2]), globalViewer);
 	scene.updateScene(timeStep);
-
-	for (size_t i = 0; i < scene.particles->size; ++i) { globalViewer.append_mesh(); }
 	scene.draw(globalViewer);
 
 	//add a menu

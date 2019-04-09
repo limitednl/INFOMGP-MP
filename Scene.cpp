@@ -84,20 +84,20 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 
 	std::random_device rd;
 	std::mt19937 e2(rd());
-	std::uniform_real_distribution<> dist(-0.5, 0.5);
+	std::uniform_real_distribution<> dist(-1.0, 1.0);
 
-	const size_t count = 800;
+	const size_t count = 2000;
 	const double particleSize = 2 * this->particleRadius;
-	const double areaSize = 1.6;
+	const double areaSize = 4.0;
 
 	double ppd = areaSize / particleSize;
 	FluidSim::ParticleData data[count];
 	for (size_t i = 0; i < count; ++i) {
-		double y = -0.5 * areaSize * particleSize * floor(i / (ppd * ppd));
+		double y = -0.5 * areaSize + particleSize * floor(i / (ppd * ppd));
 		double z = -0.5 * areaSize + particleSize * floor((i % (int) (ppd * ppd)) / ppd);
 		double x = -0.5 * areaSize + particleSize * (i % (int) ppd);
 
-		data[i] = { 0.1, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
+		data[i] = { 1.997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
 	}
 
 	this->particles = new FluidSim::ParticleCollection(count, data);
