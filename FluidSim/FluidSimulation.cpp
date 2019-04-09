@@ -9,7 +9,7 @@ namespace FluidSim {
 	FluidSimulation::FluidSimulation(
 		ParticleCollection& particles
 	) : totalTicks(0), totalAverage(0.0), slidingAverage(0.0),
-		environmentalPressure(0.0), gasConstant(20.0), resolution(1.0), gravity(0.0, -9.81, 0.0),
+		environmentalPressure(0.0), gasConstant(20.0), resolution(1.0), viscosity(0.09), gravity(0.0, -9.81, 0.0),
 		particles(particles), density(particles.size), pressure(particles.size),
 	    distanceX(particles.size, particles.size), distanceY(particles.size, particles.size), distanceZ(particles.size, particles.size) {
 	}
@@ -40,7 +40,6 @@ namespace FluidSim {
 		for (size_t i = 0; i < this->particles.size; ++i) {
 			// Calculate density for particle i.
 			for (size_t j = 0; j < this->particles.size; ++j) {
-				//if (i == j) { continue; }
 				Eigen::Vector3d distance(this->distanceX(i, j), this->distanceY(i, j), this->distanceZ(i, j));
 				this->density[i] += this->particles.mass[j] * this->smoothingPressure(distance, this->resolution);
 			}
@@ -54,20 +53,18 @@ namespace FluidSim {
 			Eigen::Vector3d externalForce(0.0, 0.0, 0.0);
 
 			// Calculate viscosity force for particle i.
-			//Eigen::Vector3d velocityI(this->particles.velocityX[i], this->particles.velocityY[i], this->particles.velocityZ[i]);
-			//for (size_t j = 0; j < this->particles.size; ++j) {
-			//	//if (i == j) { continue; }
-			//	Eigen::Vector3d distance(this->distanceX(i, j), this->distanceY(i, j), this->distanceZ(i, j));
+			Eigen::Vector3d velocityI(this->particles.velocityX[i], this->particles.velocityY[i], this->particles.velocityZ[i]);
+			for (size_t j = 0; j < this->particles.size; ++j) {
+				Eigen::Vector3d distance(this->distanceX(i, j), this->distanceY(i, j), this->distanceZ(i, j));
 
-			//	Eigen::Vector3d velocityJ(this->particles.velocityX[j], this->particles.velocityY[j], this->particles.velocityZ[j]);
-			//	viscosityForce += this->particles.mass[j] * (velocityJ - velocityI) / this->density[j]
-			//		            * this->laplacianSmoothingViscosity(distance, this->resolution);
-			//}
-			//viscosityForce *= 1.0f; // TODO: mu.
+				Eigen::Vector3d velocityJ(this->particles.velocityX[j], this->particles.velocityY[j], this->particles.velocityZ[j]);
+				viscosityForce += this->particles.mass[j] * (velocityJ - velocityI) / this->density[j]
+					            * this->laplacianSmoothingViscosity(distance, this->resolution);
+			}
+			viscosityForce *= this->viscosity;
 
 			// Calculate pressure force for particle i.
 			for (size_t j = 0; j < this->particles.size; ++j) {
-				//if (i == j) { continue; }
 				Eigen::Vector3d distance(this->distanceX(i, j), this->distanceY(i, j), this->distanceZ(i, j));
 
 				Eigen::Vector3d smoothingFactor = this->gradientSmoothingPressure(distance, this->resolution);
@@ -93,18 +90,18 @@ namespace FluidSim {
 		// TODO: Makeshift boundary condition.
 		double dampeningFactory = 1.0;
 		for (size_t i = 0; i < this->particles.size; ++i) {
-			if (abs(particles.positionX[i]) > 1.0) { 
-				particles.positionX[i] = std::min(1.0, std::max(-1.0, particles.positionX[i]));
+			if (abs(particles.positionX[i]) > 5.0) { 
+				particles.positionX[i] = std::min(5.0, std::max(-5.0, particles.positionX[i]));
 				particles.velocityX[i] = -dampeningFactory * particles.velocityX[i]; 
 			}
 
-			if (abs(particles.positionY[i]) > 1.0) {
-				particles.positionY[i] = std::min(1.0, std::max(-1.0, particles.positionY[i]));
+			if (abs(particles.positionY[i]) > 5.0) {
+				particles.positionY[i] = std::min(5.0, std::max(-5.0, particles.positionY[i]));
 				particles.velocityY[i] = -dampeningFactory * particles.velocityY[i];
 			}
 
-			if (abs(particles.positionZ[i]) > 1.0) {
-				particles.positionZ[i] = std::min(1.0, std::max(-1.0, particles.positionZ[i]));
+			if (abs(particles.positionZ[i]) > 5.0) {
+				particles.positionZ[i] = std::min(5.0, std::max(-5.0, particles.positionZ[i]));
 				particles.velocityZ[i] = -dampeningFactory * particles.velocityZ[i];
 			}
 		}

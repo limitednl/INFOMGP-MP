@@ -20,6 +20,7 @@ namespace FluidSim {
 			double environmentalPressure;
 			double gasConstant;
 			double resolution;
+			double viscosity;
 			Eigen::Vector3d gravity; // Gravity as acceleration.
 
 		public:
