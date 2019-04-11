@@ -74,6 +74,9 @@ void Scene::draw(igl::opengl::glfw::Viewer& viewer) {
 		-b, -b, b,
 		-b, -b, -b;
 	viewer.data().add_edges(p1Edges, p2Edges, edgeColor);
+
+
+
 }
 
 void Scene::updateScene(double timeStep) {
@@ -82,7 +85,7 @@ void Scene::updateScene(double timeStep) {
 }
 
 bool Scene::loadScene(igl::opengl::glfw::Viewer& viewer) {
-	this->generateParticleMesh();
+	//this->generateParticleMesh();
 
 	std::random_device rd;
 	std::mt19937 e2(rd());
@@ -107,25 +110,6 @@ bool Scene::loadScene(igl::opengl::glfw::Viewer& viewer) {
 
 	this->loaded = true;
 	return true;
-}
-
-void Scene::ResetParticles(double areaSize)
-{
-	const size_t count = 2000;
-	const double particleSize = 2 * this->particleRadius;
-	double ppd = areaSize / particleSize;
-	FluidSim::ParticleData data[count];
-
-	for (size_t i = 0; i < particles->size; ++i) {
-		double y = -0.5 * areaSize + particleSize * floor(i / (ppd * ppd));
-		double z = -0.5 * areaSize + particleSize * floor((i % (int)(ppd * ppd)) / ppd);
-		double x = -0.5 * areaSize + particleSize * (i % (int)ppd);
-
-		data[i] = { 1.997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
-	}
-
-	this->particles = new FluidSim::ParticleCollection(count, data);
-	this->fluidSimulation = new FluidSim::FluidSimulation(*this->particles);
 }
 
 void Scene::generateParticleMesh() {

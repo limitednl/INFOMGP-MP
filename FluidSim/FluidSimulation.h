@@ -24,7 +24,7 @@ namespace FluidSim {
 			bool useGravity = true;
 			bool useSurfaceTension = true;
 
-			double wallPressure = 3.0;
+			double wallPressure = 0.5;
 			double simulationSize = 5.0;
 			double environmentalPressure = 2.0;
 
@@ -32,7 +32,7 @@ namespace FluidSim {
 			double gasConstant = 20.0;
 			double viscosity = 0.5;
 			double tensionCoefficient = 0.1;
-			double lengthTreshold = 1.0;
+			double lengthTreshold = 0.1;
 			Eigen::Vector3d gravity; // Gravity as acceleration.
 
 			ParticleCollection& particles;
