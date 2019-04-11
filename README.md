@@ -8,7 +8,7 @@ the coefficient of restitution, the gas constant, the environmental pressure, th
 
 For smoothing kernels we used the Poly6, Spiky, and Viscosity kernels outlined in [this](https://nccastaff.bournemouth.ac.uk/jmacey/MastersProjects/MSc15/06Burak/BurakErtekinMScThesis.pdf) thesis.
 
-##Installation
+## Installation
 The framework we used has been repurposed from the practical skeleton and thus the installation instructions remain the same.
 
 The skeleton uses the following dependencies: [libigl](http://libigl.github.io/libigl/), and consequently [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page), for the representation and viewing of geometry, and [libccd](https://github.com/danfis/libccd) for collision detection. libigl viewer is using [dear imGui](https://github.com/ocornut/imgui) for the menu. Everything is bundled as either submodules, or just incorporated code within the environment, and you do not have to take care of any installation details. To get the library, use:
