@@ -43,11 +43,11 @@ bool key_down(igl::opengl::glfw::Viewer& viewer, unsigned char key, int modifier
 		}
 	}
 
-	if (key == 'V') {
+	/*if (key == 'V') {
 		glfwSetWindowShouldClose(viewer.window, GLFW_TRUE);
 		fScreen = !fScreen;
 		relaunch = true;
-	}
+	}*/
 
 	return false;
 }
@@ -85,6 +85,38 @@ class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 				scene.draw(globalViewer);
 			}
 
+			if (ImGui::Button("Gravity Zero")) {
+				scene.fluidSimulation->gravity = Eigen::Vector3d(0, 0, 0);
+			}
+			if (ImGui::Button("Gravity Left")) {
+				scene.fluidSimulation->gravity = Eigen::Vector3d(-10, 0, 0);
+			}
+			if (ImGui::Button("Gravity Right")) {
+				scene.fluidSimulation->gravity = Eigen::Vector3d(10, 0, 0);
+			}
+			if (ImGui::Button("Gravity Down")) {
+				scene.fluidSimulation->gravity = Eigen::Vector3d(0, -10, 0);
+			}
+			if (ImGui::Button("Gravity Up")) {
+				scene.fluidSimulation->gravity = Eigen::Vector3d(0, 10, 0);
+			}
+
+
+			if (ImGui::Button("High Viscosity")) {
+				scene.fluidSimulation->viscosity = 55;
+			}
+			if (ImGui::Button("Low Viscosity")) {
+				scene.fluidSimulation->viscosity = 0.05;
+			}
+
+
+			if (ImGui::Button("High env Pressure")) {
+				scene.fluidSimulation->environmentalPressure = 20;
+			}
+			if (ImGui::Button("Low env Pressure")) {
+				scene.fluidSimulation->environmentalPressure = .5;
+			}
+
 			ImGui::Checkbox("Use Gravity", &scene.fluidSimulation->useGravity);
 			ImGui::Checkbox("Use Viscosity", &scene.fluidSimulation->useViscosity);
 			ImGui::Checkbox("Use Pressure", &scene.fluidSimulation->usePressure);
@@ -106,6 +138,7 @@ class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 			ImGui::InputDouble("Environmental Pressure", &scene.fluidSimulation->environmentalPressure, 0, 0);
 			ImGui::InputDouble("Gas Constant", &scene.fluidSimulation->gasConstant, 0, 0);
 			ImGui::InputDouble("Viscosity", &scene.fluidSimulation->viscosity, 0, 0);
+			ImGui::InputDouble("Surface tension", &scene.fluidSimulation->tensionCoefficient, 0, 0);
 		}
 	}
 };
