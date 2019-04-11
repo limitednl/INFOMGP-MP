@@ -11,7 +11,6 @@ namespace FluidSim {
 			double totalAverage;
 			double slidingAverage;
 
-			ParticleCollection& particles;
 			Eigen::MatrixXd distanceX;
 			Eigen::MatrixXd distanceY;
 			Eigen::MatrixXd distanceZ;
@@ -35,6 +34,8 @@ namespace FluidSim {
 			double tensionCoefficient = 0.1;
 			double lengthTreshold = 1.0;
 			Eigen::Vector3d gravity; // Gravity as acceleration.
+
+			ParticleCollection& particles;
 
 		public:
 			void update(const double deltaTime);

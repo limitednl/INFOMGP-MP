@@ -60,7 +60,6 @@ bool pre_draw(igl::opengl::glfw::Viewer& viewer) {
 		scene.updateScene(timeStep);
 		currTime += timeStep;
 
-		viewer.data().clear();
 		scene.draw(viewer);
 	}
 
@@ -72,10 +71,20 @@ class CustomMenu : public igl::opengl::glfw::imgui::ImGuiMenu
 
 	virtual void draw_viewer_menu() override {
 		// Draw parent menu
-		ImGuiMenu::draw_viewer_menu();
+		//ImGuiMenu::draw_viewer_menu();
 
 		// Add new group
 		if (ImGui::CollapsingHeader("Simulation Options", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+			if (ImGui::Button("Reset"))
+			{
+				//reset world
+				globalViewer.core.is_animating = false;
+				scene.loadScene(globalViewer);
+				scene.updateScene(timeStep);
+				scene.draw(globalViewer);
+			}
+
 			ImGui::Checkbox("Use Gravity", &scene.fluidSimulation->useGravity);
 			ImGui::Checkbox("Use Viscosity", &scene.fluidSimulation->useViscosity);
 			ImGui::Checkbox("Use Pressure", &scene.fluidSimulation->usePressure);
@@ -106,17 +115,17 @@ int main(int argc, char* argv[]) {
 	using namespace std;
 
 	// Load scene
-	if (argc < 3) {
-		cout << "Please provide path (argument 1 and name of scene file (argument 2)!" << endl;
-		return 0;
-	}
+	//if (argc < 1) {
+	//	//cout << "Please provide path (argument 1 and name of scene file (argument 2)!" << endl;
+	//	return 0;
+	//}
 
 	/*
 	TODO: setup world here
 	1. load world
 	2. add default meshes
 	*/
-	scene.loadScene(std::string(argv[1]), std::string(argv[2]), globalViewer);
+	scene.loadScene(globalViewer);
 	scene.updateScene(timeStep);
 	scene.draw(globalViewer);
 

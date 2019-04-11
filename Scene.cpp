@@ -4,18 +4,20 @@
 #include <iostream>
 #include <Eigen/Core>
 
-Scene::Scene(): loaded(false), particleRadius(0.1), particles(NULL), fluidSimulation(NULL) {}
+Scene::Scene() : loaded(false), particleRadius(0.1), particles(NULL), fluidSimulation(NULL) {}
 Scene::~Scene() {
 	if (NULL != this->fluidSimulation) { delete this->fluidSimulation; }
 	if (NULL != this->particles) { delete this->particles; }
 }
 
-size_t Scene::getMeshCount() { 
-	return this->particles->size; 
+size_t Scene::getMeshCount() {
+	return this->particles->size;
 }
 
 void Scene::draw(igl::opengl::glfw::Viewer& viewer) {
 	assert(this->loaded);
+
+	viewer.data().clear();
 
 	Eigen::RowVector3d color; color << 0.1, 0.1, 0.8; //blue-ish?
 	//for (size_t i = 0; i < this->particles->size; ++i) {
@@ -39,37 +41,37 @@ void Scene::draw(igl::opengl::glfw::Viewer& viewer) {
 	points.col(2) = this->particles->positionZ;
 	viewer.data().add_points(points, color);
 
-	Eigen::RowVector3d edgeColor; edgeColor << 0.8, 0.1, 0.1; //red-ish?
+	Eigen::RowVector3d edgeColor; edgeColor << 0, 1, 0; //red-ish?
 	double b = 5.0;
-	Eigen::MatrixXd p1Edges(12, 3); p1Edges << 
-		 b,  b,  b,
-		 b,  b, -b,
-		-b,  b, -b,
-		-b,  b,  b,
+	Eigen::MatrixXd p1Edges(12, 3); p1Edges <<
+		b, b, b,
+		b, b, -b,
+		-b, b, -b,
+		-b, b, b,
 
-		 b, -b,  b,
-		 b, -b, -b,
+		b, -b, b,
+		b, -b, -b,
 		-b, -b, -b,
-		-b, -b,  b,
+		-b, -b, b,
 
-		 b,  b,  b,
-		 b,  b, -b,
-		-b,  b,  b,
-		-b,  b, -b;
-	Eigen::MatrixXd p2Edges(12, 3); p2Edges << 
-		 b,  b, -b,
-		-b,  b, -b,
-		-b,  b,  b,
-		 b,  b,  b,
+		b, b, b,
+		b, b, -b,
+		-b, b, b,
+		-b, b, -b;
+	Eigen::MatrixXd p2Edges(12, 3); p2Edges <<
+		b, b, -b,
+		-b, b, -b,
+		-b, b, b,
+		b, b, b,
 
-		 b, -b, -b,
+		b, -b, -b,
 		-b, -b, -b,
-		-b, -b,  b,
-		 b, -b,  b,
+		-b, -b, b,
+		b, -b, b,
 
-		 b, -b,  b,
-		 b, -b, -b,
-		-b, -b,  b,
+		b, -b, b,
+		b, -b, -b,
+		-b, -b, b,
 		-b, -b, -b;
 	viewer.data().add_edges(p1Edges, p2Edges, edgeColor);
 }
@@ -79,7 +81,7 @@ void Scene::updateScene(double timeStep) {
 	this->fluidSimulation->update(timeStep);
 }
 
-bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileName, igl::opengl::glfw::Viewer& viewer) {
+bool Scene::loadScene(igl::opengl::glfw::Viewer& viewer) {
 	this->generateParticleMesh();
 
 	std::random_device rd;
@@ -94,8 +96,8 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 	FluidSim::ParticleData data[count];
 	for (size_t i = 0; i < count; ++i) {
 		double y = -0.5 * areaSize + particleSize * floor(i / (ppd * ppd));
-		double z = -0.5 * areaSize + particleSize * floor((i % (int) (ppd * ppd)) / ppd);
-		double x = -0.5 * areaSize + particleSize * (i % (int) ppd);
+		double z = -0.5 * areaSize + particleSize * floor((i % (int)(ppd * ppd)) / ppd);
+		double x = -0.5 * areaSize + particleSize * (i % (int)ppd);
 
 		data[i] = { 1.997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
 	}
@@ -105,6 +107,25 @@ bool Scene::loadScene(const std::string dataFolder, const std::string sceneFileN
 
 	this->loaded = true;
 	return true;
+}
+
+void Scene::ResetParticles(double areaSize)
+{
+	const size_t count = 2000;
+	const double particleSize = 2 * this->particleRadius;
+	double ppd = areaSize / particleSize;
+	FluidSim::ParticleData data[count];
+
+	for (size_t i = 0; i < particles->size; ++i) {
+		double y = -0.5 * areaSize + particleSize * floor(i / (ppd * ppd));
+		double z = -0.5 * areaSize + particleSize * floor((i % (int)(ppd * ppd)) / ppd);
+		double x = -0.5 * areaSize + particleSize * (i % (int)ppd);
+
+		data[i] = { 1.997, Eigen::Vector3d(x + this->particleRadius, y + this->particleRadius, z + this->particleRadius), Eigen::Vector3d::Zero() };
+	}
+
+	this->particles = new FluidSim::ParticleCollection(count, data);
+	this->fluidSimulation = new FluidSim::FluidSimulation(*this->particles);
 }
 
 void Scene::generateParticleMesh() {
